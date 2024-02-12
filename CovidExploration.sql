@@ -35,7 +35,7 @@ ORDER BY
 -- QUESTION 1 - How has the likelihood of contracting COVID in Brazil evolved?
 
 SELECT
-    Location,
+    location,
     date,
     population,
     total_cases,
@@ -43,7 +43,7 @@ SELECT
 FROM
     covid_database.public.coviddeaths
 WHERE
-    Location like '%Brazil%'
+    location like '%Brazil%'
     AND continent IS NOT NULL
 ORDER BY
     1,
@@ -52,7 +52,7 @@ ORDER BY
 -- QUESTION 2 - After contracting COVID, how has the likelihood of death evolved in Brazil?
 
 SELECT
-    Location,
+    location,
     date,
     total_cases,
     total_deaths,
@@ -60,7 +60,7 @@ SELECT
 FROM
     covid_database.public.coviddeaths
 WHERE
-    Location LIKE '%Brazil%'
+    location LIKE '%Brazil%'
     AND continent IS NOT NULL
 ORDER BY
     1,
@@ -144,7 +144,7 @@ ORDER BY
 -- QUESTION 1 - What are the countries with the highest infection rate by population?
 
 SELECT
-    Location,
+    location,
     population,
     MAX(total_cases) as HighestInfectionCount,
     MAX((total_cases / population)) * 100 as InfectionRate
@@ -155,15 +155,15 @@ WHERE
     AND population IS NOT NULL
     AND continent IS NOT NULL
 GROUP BY
-    Population,
-    Location
+    population,
+    location
 ORDER BY
     InfectionRate DESC 
 
 -- QUESTION 2 - What are the countries with the highest death count?
     
 SELECT
-    Location,
+    location,
     population,
     MAX(cast (total_deaths as int)) as TotalDeathCount
 FROM
@@ -173,15 +173,15 @@ WHERE
     AND population IS NOT NULL
     AND continent IS NOT NULL
 GROUP BY
-    Population,
-    Location
+    population,
+    location
 ORDER BY
     TotalDeathCount DESC 
 
 -- QUESTION 3 - What are the countries with the highest death rate by population?
     
 SELECT
-    Location,
+    location,
     population,
     --MAX(cast (total_deaths as int)) as TotalDeathCount
     MAX(cast (total_deaths as int) / population) * 100 as DeathRate
@@ -192,24 +192,24 @@ WHERE
     AND population IS NOT NULL
     AND continent IS NOT NULL
 GROUP BY
-    Population,
-    Location
+    population,
+    location
 ORDER BY
     DeathRate DESC 
         
 -- QUESTION 4 - Which continent has the highest death count?
 
 SELECT
-    Location,
+    location,
     MAX(cast (total_deaths as int)) as TotalDeathCount
 FROM
     covid_database.public.coviddeaths
 WHERE
-    Continent IS NULL 
-    AND Location LIKE 'Europe' OR Location LIKE '%America' OR Location LIKE 'Asia' 
-    OR Location LIKE 'Africa' OR Location LIKE 'Oceania'
+    continent IS NULL 
+    AND location LIKE 'Europe' OR location LIKE '%America' OR location LIKE 'Asia' 
+    OR location LIKE 'Africa' OR location LIKE 'Oceania'
 GROUP BY
-    Location
+    location
 ORDER BY
     TotalDeathCount DESC 
 
@@ -273,10 +273,9 @@ ORDER BY
  
 -- QUESTION 3 - Which countries have the highest number of vaccines applied per capita?
 
+-- Using CTE to perform this qeury
 
--- Using CTE to grab the number of vaccinated people over the total population by location in a standard SQL code
--- Using CTE to grab the number of vaccinated people over the total population by location in standard SQL code
-WITH PopvsVac (
+WITH VaccinesPerCapitaCTE (
     continent,
     location,
     date,
@@ -301,167 +300,58 @@ WITH PopvsVac (
 )
 SELECT
     location,
-    SUM(population) as TotalPopulation,
-    SUM(PeopleVaccinated) as TotalPeopleVaccinated,
-    (SUM(PeopleVaccinated) / SUM(population)) as VaccinesPerCapita
+    MAX(population) as population,
+    MAX(PeopleVaccinated) as PeopleVaccinated,
+    (MAX(PeopleVaccinated) / MAX(population)) as VaccinesPerCapita
 FROM
-    PopvsVac 
+    VaccinesPerCapitaCTE
+WHERE
+    PeopleVaccinated IS NOT NULL
 GROUP BY
     location
 ORDER BY
     VaccinesPerCapita DESC
 
+-- Using CTE to perform this qeury
     
--- Snowflake test
-SELECT
-    continent,
-    location,
-    population,
-    PeopleVaccinated,
-    (PeopleVaccinated / population) as VaccinesPerCapita
-FROM (
-    SELECT
-        dae.continent,
-        dae.location,
-        dae.population,
-        SUM(vac.new_vaccinations) OVER (
-            PARTITION BY dae.location
-            ORDER BY dae.location
-        ) as PeopleVaccinated
-    FROM
-        covid_database.public.coviddeaths dae
-        JOIN covid_database.public.covidvaccinations vac ON dae.location = vac.location
-            AND dae.date = vac.date
-    WHERE
-        dae.continent IS NOT NULL
-    GROUP BY
-        dae.location, dae.continent, dae.population
-) AS subquery
-ORDER BY
-    VaccinesPerCapita
-
-
-    
--- Join the two main tables of the database
-
--- Looking total population vs total vaccination
-SELECT
-    dae.continent,
-    dae.location,
-    dae.population,
-    vac.new_vaccinations,
-    SUM(vac.new_vaccinations) OVER (
-        Partition BY dae.location
-        ORDER BY
-            dae.location
-    ) as PeopleVaccinated,
-    (PeopleVaccinated / dae.population) as PercentageVaccinated
-FROM
-    covid_database.public.coviddeaths dae
-    JOIN covid_database.public.covidvaccinations vac ON dae.location = vac.location
-    AND dae.date = vac.date
-WHERE
-    dae.continent IS NOT NULL
-ORDER BY
-    2,
-    3 
--- OBS.: The code above work due to some under the hood functionally of Snowflake
-    
--- Using CTE to grab the number of vaccinated people over the total population by location in a standard SQL code
-WITH PopvsVac (
-    continent,
-    location,
-    date,
-    population,
-    new_vaccinations,
-    PeopleVaccinated
-    ) AS (
-        SELECT
-            dae.continent,
-            dae.location,
-            dae.date,
-            dae.population,
-            vac.new_vaccinations,
-            SUM(vac.new_vaccinations) OVER (
-                Partition BY dae.location
-                ORDER BY
-                    dae.location,
-                    dae.date
-            ) as PeopleVaccinated
-        FROM
-            covid_database.public.coviddeaths dae
-            JOIN covid_database.public.covidvaccinations vac ON dae.location = vac.location
-            AND dae.date = vac.date
-        WHERE
-            dae.continent IS NOT NULL
-    )
-SELECT
-    *,
-    (PeopleVaccinated / population) * 100 as PercentageVaccinated
-FROM
-    PopvsVac 
-    
--- Using a TempTable to grab the number of vaccinated people over the total population by location in a standard SQL code
-    DROP TABLE IF EXISTS PercentageVaccinatedTable;
-CREATE TABLE PercentageVaccinatedTable (
+DROP TABLE IF EXISTS VaccinesPerCapitaTable;
+CREATE TABLE VaccinesPerCapitaTable (
         continent nvarchar(255),
         location nvarchar(255),
-        date datetime,
+        --date datetime,
         population numeric,
         new_vaccinations numeric,
         PeopleVaccinated numeric
     );
 INSERT INTO
-    PercentageVaccinatedTable
+    VaccinesPerCapitaTable
 SELECT
     dae.continent,
     dae.location,
-    dae.date,
+    --dae.date,
     dae.population,
     vac.new_vaccinations,
     SUM(vac.new_vaccinations) OVER (
-        Partition BY dae.location
+        PARTITION BY dae.location
         ORDER BY
-            dae.location,
-            dae.date
+            dae.location, dae.date
     ) as PeopleVaccinated
 FROM
     covid_database.public.coviddeaths dae
-    JOIN covid_database.public.covidvaccinations vac ON dae.location = vac.location
-    AND dae.date = vac.date
+JOIN covid_database.public.covidvaccinations vac 
+    ON dae.location = vac.location AND dae.date = vac.date
 WHERE
-    dae.continent IS NOT NULL
+    dae.continent IS NOT NULL;
+SELECT
+    location,
+    MAX(population) as population,
+    MAX(PeopleVaccinated) as PeopleVaccinated,
+    (MAX(PeopleVaccinated) / MAX(population)) as VaccinesPerCapita
+FROM
+    VaccinesPerCapitaTable
+WHERE
+    PeopleVaccinated IS NOT NULL
+GROUP BY
+    location
 ORDER BY
-    2,
-    3;
-SELECT
-    *,
-    (PeopleVaccinated / population) * 100 as PercentageVaccinated
-FROM
-    PercentageVaccinatedTable 
-    
--- Create a view
-    CREATE VIEW PercentageVaccinated AS
-SELECT
-    dae.continent,
-    dae.location,
-    dae.date,
-    dae.population,
-    vac.new_vaccinations,
-    SUM(vac.new_vaccinations) OVER (
-        Partition BY dae.location
-        ORDER BY
-            dae.location,
-            dae.date
-    ) as PeopleVaccinated,
-    (PeopleVaccinated / dae.population) * 100 as PercentageVaccinated
-FROM
-    covid_database.public.coviddeaths dae
-    JOIN covid_database.public.covidvaccinations vac ON dae.location = vac.location
-    AND dae.date = vac.date
-WHERE
-    dae.continent IS NOT NULL -- Querying the view
-SELECT
-    *
-FROM
-    covid_database.public.percentagevaccinated
+    VaccinesPerCapita DESC
