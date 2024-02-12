@@ -1,7 +1,7 @@
 # COVID-19 Exploratory Data Analysis (EDA) SQL Code
 
 ## Goal
-The primary goal of this SQL code is to conduct exploratory data analysis (EDA) on COVID-19 data using Snowflake. The code aims to extract valuable insights from the provided dataset, allowing users to better understand trends, patterns, and key metrics related to the pandemic from the start on 2020 until February 2024.
+The primary goal of this repository is to conduct exploratory data analysis (EDA) on COVID-19 data using SQL code and Snowflake. The code aims to extract valuable insights from the provided dataset, allowing users to better understand trends, patterns, and key metrics related to the pandemic from the start on 2020 until February 2024.
 
 ## Snowflake Usage
 This SQL code is designed to be executed on Snowflake, a cloud-based data warehousing platform. Snowflake provides scalable and flexible data storage and processing capabilities, making it suitable for handling large datasets with efficiency.
