@@ -59,7 +59,7 @@ ORDER BY
     2,
     3 
 
--- QUESTION 4 - Does vaccination impact the number of deaths per 100 cases?
+-- QUESTION 4 - Does vaccination impact the number of deaths per 100 cases in Brazil?
 
 CREATE VIEW 
     DeathsVsVaccinations 
@@ -88,7 +88,7 @@ AS
         2,
         3
 
--- QUESTION 5 - Does vaccination impact the number of new cases reported?
+-- QUESTION 5 - Does vaccination impact the number of new cases reported in Brazil?
 
 SELECT
     dae.location,

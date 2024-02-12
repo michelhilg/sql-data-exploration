@@ -74,7 +74,7 @@ GROUP BY
 ORDER BY
     TotalDeathCount DESC 
 
--- QUESTION 5 - What is the global death percentage over infect cases since beginning?
+-- QUESTION 5 - What is the global death percentage over infect cases evolved?
 
 SELECT
     SUM(new_cases) as Total_Cases,
