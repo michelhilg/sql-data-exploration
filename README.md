@@ -44,19 +44,22 @@ The SQL code is divided into four main parts, each focusing on a specific aspect
 2. **World Data (`03_World_Data_Analysis.sql`):**
    - Analyzes temporal trends of COVID-19 cases in the world.
    - Key Questions:
-     - Q1: What are the countries with the highest infection rate by population??
+     - Q1: What are the countries with the highest infection rate by population?
      - Q2: What are the countries with the highest death count?
      - Q3: What are the countries with the highest death rate by population?
      - Q4: Which continent has the highest death count?
-     - Q5: What is the global death percentage over infect cases evolved?
+     - Q5: What is the global death percentage over infect cases?
 
 3. **Metric Comparison (`03_Vaccination_Data_Analysis.sql`):**
    - Gain insights into the global patterns of COVID-19 vaccination.
    - Key Questions:
-     - Q1: How are new vaccines concentrated over the pandemic period in the world?
+     - Q1: How are new vaccines concentrated in the pandemic across the world?
      - Q2: How have vaccination numbers evolved in the world?
      - Q3: Which countries have the highest number of vaccines applied per capita?
 
+## Analysis Results
+
+The "queries-results.pdf" file provides a comprehensive overview of the findings derived from the COVID-19 data analysis. The document presents the answers for the questions outlined in the README file, based on visualizations and charts generated through Snowflake queries and tools.
 
 ## Usage with Snowflake
 1. Create a free trial Snowflake account if you don't have one.

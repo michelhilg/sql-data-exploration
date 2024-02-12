@@ -2,7 +2,7 @@
 
 -- In the third part of the COVID data exploration, we will address some questions about the vaccination in the world.
 
--- QUESTION 1 - How the new vaccines are concentrated over the pandemic period?
+-- QUESTION 1 - How are new vaccines concentrated in the pandemic across the world?
 
 SELECT
     dae.location,
